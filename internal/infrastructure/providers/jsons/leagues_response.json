@@ -1,0 +1,38 @@
+[
+  {
+    "leagueId": "b8c67709-6857-484e-a75d-aae615c7b776",
+    "queueType": "RANKED_FLEX_SR",
+    "tier": "GOLD",
+    "rank": "I",
+    "summonerId": "5Nn5hoqMZjWtssygP7bJl0fnCZneGrO90_TSS02olMXG9gM",
+    "summonerName": "Prodigium",
+    "leaguePoints": 100,
+    "wins": 34,
+    "losses": 21,
+    "veteran": false,
+    "inactive": false,
+    "freshBlood": false,
+    "hotStreak": false,
+    "miniSeries": {
+      "target": 3,
+      "wins": 1,
+      "losses": 1,
+      "progress": "LWNNN"
+    }
+  },
+  {
+    "leagueId": "5b76481e-0327-453c-b6a1-1daf4dc6252d",
+    "queueType": "RANKED_SOLO_5x5",
+    "tier": "DIAMOND",
+    "rank": "II",
+    "summonerId": "5Nn5hoqMZjWtssygP7bJl0fnCZneGrO90_TSS02olMXG9gM",
+    "summonerName": "Prodigium",
+    "leaguePoints": 81,
+    "wins": 523,
+    "losses": 524,
+    "veteran": false,
+    "inactive": false,
+    "freshBlood": false,
+    "hotStreak": false
+  }
+]

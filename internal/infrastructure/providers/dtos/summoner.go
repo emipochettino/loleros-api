@@ -1,4 +1,4 @@
-package infrastructure
+	package infrastructure
 
 // SummonerDTO dto to map answer from rito api
 type SummonerDTO struct {

@@ -1,7 +1,8 @@
 package application
-/*
+
 import (
 	"fmt"
+	"github.com/emipochettino/loleros-api/internal/domain"
 	providers "github.com/emipochettino/loleros-api/internal/infrastructure/providers/dtos"
 	"log"
 	"sync"
@@ -14,10 +15,10 @@ type matchService struct {
 }
 
 type MatchService interface {
-	FindCurrentMatchByRegionAndSummonerName(region string, summonerName string) ([]application.SummonerDTO, error)
+	FindCurrentMatchByRegionAndSummonerName(region string, summonerName string) (*domain.Match, error)
 }
 
-func (m matchService) FindCurrentMatchByRegionAndSummonerName(region string, summonerName string) ([]application.SummonerDTO, error) {
+func (m matchService) FindCurrentMatchByRegionAndSummonerName(region string, summonerName string) (*domain.Match, error) {
 	start := time.Now()
 	summonerDTO, err := m.ritoProvider.FindSummonerByRegionAndName(region, summonerName)
 	if err != nil {
@@ -29,10 +30,12 @@ func (m matchService) FindCurrentMatchByRegionAndSummonerName(region string, sum
 		return nil, err
 	}
 
-	//TODO make this for async
+	//TODO make this async
+	//new approach: create waitGroup, add 1 in each iteration before go func, results add into other chan, wait
+	summoners := make(chan domain.Summoner, len(matchDTO.Participants))
 	var wg sync.WaitGroup
-	wg.Add(10)
-	var summoners []application.SummonerDTO
+	// add the number of summoners in the match
+	wg.Add(len(matchDTO.Participants))
 	for _, participant := range matchDTO.Participants {
 		go func(participant providers.ParticipantDTO) {
 			defer wg.Done()
@@ -45,19 +48,41 @@ func (m matchService) FindCurrentMatchByRegionAndSummonerName(region string, sum
 			if err != nil {
 				return
 			}
-			summoner := providers.MapToSummonerModel(*summonerDTO, participant, leaguesDTO)
-			m.mu.Lock()
-			summoners = append(summoners, summoner)
-			m.mu.Unlock()
+
+			var leagues []domain.League
+			for _, leagueDTO := range leaguesDTO {
+				leagues = append(
+					leagues,
+					domain.NewLeague(
+						leagueDTO.QueueType,
+						leagueDTO.Tier,
+						leagueDTO.Rank,
+						leagueDTO.Wins,
+						leagueDTO.Losses,
+					))
+			}
+
+			summoner := domain.NewSummoner(
+				summonerDTO.Id,
+				summonerDTO.Name,
+				summonerDTO.Level,
+				participant.TeamId,
+				leagues,
+			)
+			summoners <- summoner
 		}(participant)
 	}
 	wg.Wait()
+	close(summoners)
+	summonerSlice := make([]domain.Summoner, 0)
+	for summoner := range summoners {
+		summonerSlice = append(summonerSlice, summoner)
+	}
+
 	print(fmt.Sprintf("\ntime: %.2f seconds\n", time.Now().Sub(start).Seconds()))
-	return summoners, nil
+	return &domain.Match{Summoners: summonerSlice}, nil
 }
 
 func NewMatchService(provider RitoProvider) MatchService {
 	return matchService{ritoProvider: provider, mu: &sync.Mutex{}}
 }
-
- */
